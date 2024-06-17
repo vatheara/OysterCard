@@ -49,5 +49,42 @@ class MetroService {
     }
   }
 
+  class OysterCard {
+    constructor(busService, metroService, balance = 0) {
+      this.balance = balance;
+      this.busService = busService;
+      this.metroService = metroService;
+      this.currentJourney = null;
+    }
+  
+    load(amount) {
+      this.balance += amount;
+    }
+  
+    startJourney(station) {
+      if (this.currentJourney) throw new Error('Already in a journey');
+      if (this.balance < this.metroService.getMaxFare()) throw new Error('Insufficient balance');
+      this.currentJourney = { start: station, type: 'tube' };
+      this.balance -= this.metroService.getMaxFare();
+    }
+  
+    endJourney(station) {
+      if (!this.currentJourney) throw new Error('No journey in progress');
+      const fare = this.metroService.calculateFare(this.currentJourney.start, station);
+      this.balance += this.metroService.getMaxFare() - fare;
+      this.currentJourney = null;
+    }
+  
+    takeBus() {
+      if (this.balance < this.busService.getFare()) throw new Error('Insufficient balance');
+      this.balance -= this.busService.getFare();
+    }
+  
+    getBalance() {
+      return this.balance.toFixed(2);
+    }
+  }
+  
 
-export { Station, BusService, MetroService};
+
+export { Station, BusService, MetroService, OysterCard};
