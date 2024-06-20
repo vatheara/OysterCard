@@ -85,6 +85,58 @@ describe("OysterCard", () => {
     );
   });
 
+  test("charges maximum fare when user passes through inward barrier", () => {
+    oysterCard.load(30);
+    const initialBalance = parseFloat(oysterCard.getBalance());
+    oysterCard.startJourney(holborn);
+    expect(parseFloat(oysterCard.getBalance())).toBe(
+      initialBalance - metroService.getMaxFare()
+    );
+  });
+
+  test("calculates fare and adjusts balance correctly when user exits barrier", () => {
+    oysterCard.load(30);
+    oysterCard.startJourney(holborn);
+    oysterCard.endJourney(earlsCourt);
+    expect(parseFloat(oysterCard.getBalance())).toBe(30 - 2.5);
+  });
+
+  test("charges the same price for all bus journeys", () => {
+    oysterCard.load(30);
+    oysterCard.takeBus();
+    expect(parseFloat(oysterCard.getBalance())).toBe(30 - 1.8);
+  });
+
+  test("favours the customer with the cheapest fare for a given journey", () => {
+    oysterCard.load(30);
+    oysterCard.startJourney(holborn);
+    oysterCard.endJourney(earlsCourt);
+    expect(parseFloat(oysterCard.getBalance())).toBe(30 - 2.5);
+  });
+
+  test("charges maximum fare if user doesn’t swipe out", () => {
+    oysterCard.load(30);
+    oysterCard.startJourney(holborn);
+    expect(parseFloat(oysterCard.getBalance())).toBe(
+      30 - metroService.getMaxFare()
+    );
+  });
+
+  test("charges correct fare if user swipes out at the same station", () => {
+    oysterCard.load(30);
+    oysterCard.startJourney(holborn);
+    oysterCard.endJourney(holborn);
+    expect(parseFloat(oysterCard.getBalance())).toBe(30 - 2.5); // Since it's a Zone 1 journey.
+  });
+
+  test("charges maximum fare if user starts and doesn’t end the journey", () => {
+    oysterCard.load(30);
+    oysterCard.startJourney(holborn);
+    expect(parseFloat(oysterCard.getBalance())).toBe(
+      30 - metroService.getMaxFare()
+    );
+  });
+
   test("throws an error if starting a journey with insufficient balance", () => {
     expect(() => {
       oysterCard.startJourney(holborn);
