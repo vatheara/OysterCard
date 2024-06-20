@@ -42,6 +42,32 @@ class MetroService {
     } else if (startZones.length === 0 || endZones.length === 0) {
       return this.fares.noZone;
     } else if (
+      (startZones.length === 2 || endZones.length === 2) &&
+      startZones.length !== endZones.length
+    ) {
+      if (startZones.length === 2) {
+        if (endZones[0] === 1) {
+          return this.fares.twoZonesIncludingZone1;
+        }
+        if (endZones[0] === 2) {
+          return this.fares.oneZoneOutsideZone1;
+        }
+        if (endZones[0] === 3) {
+          return this.fares.twoZonesExcludingZone1;
+        }
+      }
+      if (endZones.length === 2) {
+        if (startZones[0] === 1) {
+          return this.fares.zone1;
+        }
+        if (startZones[0] === 2) {
+          return this.fares.oneZoneOutsideZone1;
+        }
+        if (startZones[0] === 3) {
+          return this.fares.twoZonesExcludingZone1;
+        }
+      }
+    } else if (
       startZones.length === 1 &&
       endZones.length === 1 &&
       startZones[0] !== 1 &&
