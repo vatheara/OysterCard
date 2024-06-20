@@ -37,56 +37,31 @@ class MetroService {
     const startZones = startStation.zones;
     const endZones = endStation.zones;
 
-    if (startZones.includes(1) && endZones.includes(1)) {
-      return this.fares.zone1;
-    } else if (startZones.length === 0 || endZones.length === 0) {
+    if (startZones.length === 0 || endZones.length === 0) {
       return this.fares.noZone;
-    } else if (
-      (startZones.length === 2 || endZones.length === 2) &&
-      startZones.length !== endZones.length
-    ) {
-      if (startZones.length === 2) {
-        if (endZones[0] === 1) {
-          return this.fares.twoZonesIncludingZone1;
-        }
-        if (endZones[0] === 2) {
-          return this.fares.oneZoneOutsideZone1;
-        }
-        if (endZones[0] === 3) {
-          return this.fares.twoZonesExcludingZone1;
-        }
-      }
-      if (endZones.length === 2) {
-        if (startZones[0] === 1) {
-          return this.fares.zone1;
-        }
-        if (startZones[0] === 2) {
-          return this.fares.oneZoneOutsideZone1;
-        }
-        if (startZones[0] === 3) {
-          return this.fares.twoZonesExcludingZone1;
-        }
-      }
-    } else if (
-      startZones.length === 1 &&
-      endZones.length === 1 &&
-      startZones[0] !== 1 &&
-      endZones[0] !== 1 &&
-      startZones[0] === endZones[0]
-    ) {
-      return this.fares.oneZoneOutsideZone1;
-    } else if (
-      startZones.includes(1) ||
-      (endZones.includes(1) &&
-        startZones[0] !== endZones[0] &&
-        isTwoZones(startZones[0], endZones[0]))
-    ) {
-      return this.fares.twoZonesIncludingZone1;
-    } else if (!startZones.includes(1) && !endZones.includes(1)) {
-      return this.fares.twoZonesExcludingZone1;
-    } else {
-      return this.fares.moreThanTwoZones;
     }
+
+    const zonesIntersection = startZones.filter((zone) =>
+      endZones.includes(zone)
+    );
+
+    if (zonesIntersection.length > 0) {
+      if (zonesIntersection.includes(1)) {
+        return this.fares.zone1;
+      }
+      return this.fares.oneZoneOutsideZone1;
+    }
+
+    const allZones = [...new Set([...startZones, ...endZones])];
+    if (allZones.includes(1) && allZones.includes(2) && allZones.length === 2) {
+      return this.fares.twoZonesIncludingZone1;
+    }
+
+    if (isTwoZones(startZones[0], endZones[0])) {
+      return this.fares.twoZonesExcludingZone1;
+    }
+
+    return this.fares.moreThanTwoZones;
   }
 
   getMaxFare() {
